@@ -15,10 +15,25 @@ export interface RouteDecision {
   readonly receiving: AnchorAdapter;
   /** The source anchor that on-ramps the bridge asset, present when the route specifies one. */
   readonly sending?: SourceAnchorAdapter;
+  /**
+   * Reserved for split routing across multiple anchors (weights sum to 1).
+   * The engine ignores this field today and reads only `receiving`, so setting
+   * it does not change where a payment goes. See docs/route-resolver.md#split.
+   */
+  readonly split?: ReadonlyArray<{ adapter: AnchorAdapter; weight: number }>;
   /** How the route decision was reached: verified against on-chain evidence or assumed from manifest. */
   readonly trust: "attested" | "manifest";
 }
 
+/**
+ * Chooses the receiving anchor for a payment. This is the open/closed seam.
+ *
+ * The engine may call `resolve()` more than once for the same payment (on the
+ * first run and again on resume), so the result should be stable for the same
+ * inputs. `resolve()` may throw to fail closed: `RegistryRouteResolver` throws
+ * `UnattestedAnchorError` rather than return a route it cannot vouch for. The
+ * full contract is in docs/route-resolver.md#the-routeresolver-interface.
+ */
 export interface RouteResolver {
   resolve(intent: PaymentIntent, corridor: Corridor): Promise<RouteDecision>;
 }
@@ -62,10 +77,18 @@ export class StaticRouteResolver implements RouteResolver {
 
 // The registry-backed resolver: the evidence-based resolver, in code.
 // StaticRouteResolver above trusts the manifest; this one requires evidence.
-export { RegistryRouteResolver } from "./registry-resolver";
-export { UnattestedAnchorError } from "./registry-resolver";
-export { isUnattestedDomainAllowed } from "./registry-resolver";
-export type { AttestationSource, RegistryResolverOptions } from "./registry-resolver";
+export {
+  RegistryRouteResolver,
+  UnattestedAnchorError,
+  asAttestationSource,
+  isAttestedProtocol,
+  isUnattestedDomainAllowed,
+  type AttestationSource,
+  type AttestationSourceLike,
+  type AttestedProtocol,
+  type LegacyAttestationSource,
+  type RegistryResolverOptions,
+} from "./registry-resolver";
 
 // Deploy-time injection: load a RouteResolver module named in config (e.g.
 // CORRIDOR_RESOLVER_MODULE) instead of editing code. The module below the

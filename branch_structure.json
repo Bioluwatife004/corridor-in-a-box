@@ -1,0 +1,18 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "fix/issue-215-adapter-kit-add-a-sourceanchoradapter-port-for",
+    "main",
+    "origin"
+  ],
+  "parent": {
+    "fix/issue-215-adapter-kit-add-a-sourceanchoradapter-port-for": "main",
+    "main": null,
+    "origin": "main"
+  },
+  "order": [
+    "main",
+    "fix/issue-215-adapter-kit-add-a-sourceanchoradapter-port-for",
+    "origin"
+  ]
+}
