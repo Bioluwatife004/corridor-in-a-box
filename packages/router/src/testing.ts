@@ -305,17 +305,17 @@ export function expectResolverContract(report: ResolverContractReport): void {
 }
 
 /**
- * Register the contract as vitest cases, one per contract clause. Call this
- * from your own test file with your own resolver — that is the whole point of
- * shipping it here.
+ * Register the contract as a vitest `describe` block: one `it` per case.
+ * Call from a test file; each case reports on its own line.
  */
 export function describeResolverContract(
   resolverName: string,
   makeResolver: ResolverFactory,
   overrides: ResolverContractOverrides = {},
 ): void {
+  const { cases } = contractFor(makeResolver, overrides);
   describe(`RouteResolver contract: ${resolverName}`, () => {
-    for (const c of contractFor(makeResolver, overrides).cases) {
+    for (const c of cases) {
       it(c.name, async () => {
         await c.run();
       });
